@@ -3,7 +3,9 @@ use log::info;
 use std::env;
 use std::fs::File;
 use std::path::PathBuf;
+
 mod boundaries;
+mod vcf_parser;
 mod write_planner;
 
 #[derive(Parser, Debug)]
@@ -44,7 +46,7 @@ fn main() -> Result<(), ()> {
     info!("Running with {:?}.", cmd.join(" "));
     let args: StructuredGeneCLI = StructuredGeneCLI::parse();
     let mode: &str = extract_command(&args);
-    let _file_format = VcfParser::get_file_format();
+    let _file_format = vcf_parser::VcfParser::get_file_format();
     info!("We are running in {} mode.", mode);
     let _result = command_dispatcher(&args);
     Ok(())
@@ -78,7 +80,7 @@ fn command_dispatcher(args: &StructuredGeneCLI) -> Result<(), ()> {
             let s = String::from("This is length of the variant");
             let _new_description = InfoField::parse_description(s);
             write_planner::WritePlanner::new()
-                .add(VcfParser::get_file_format())
+                .add(vcf_parser::VcfParser::get_file_format())
                 .add(b"some path")
                 .write(&new_file);
             Ok(())
@@ -117,14 +119,6 @@ impl InfoField {
     }
 }
 
-struct VcfParser {}
-
-impl<'a> VcfParser {
-    fn get_file_format() -> &'a [u8] {
-        b"##fileformat=VCFv4.2"
-    }
-}
-
 #[test]
 fn test_command_extraction() {
     let mut test_args = StructuredGeneCLI {
@@ -138,11 +132,6 @@ fn test_command_extraction() {
         only_header: false,
     };
     assert_eq!(extract_command(&test_args), "generate");
-}
-#[test]
-fn header_is_created() {
-    let expected_header = b"##fileformat=VCFv4.2";
-    assert_eq!(VcfParser::get_file_format(), expected_header);
 }
 
 #[test]
