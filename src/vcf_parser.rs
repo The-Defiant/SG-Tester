@@ -6,10 +6,8 @@ impl<'a> VcfParser {
     }
 }
 
-
 #[test]
 fn header_is_created() {
     let expected_header = b"##fileformat=VCFv4.2";
     assert_eq!(VcfParser::get_file_format(), expected_header);
 }
-

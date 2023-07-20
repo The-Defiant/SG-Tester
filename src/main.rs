@@ -5,6 +5,7 @@ use std::fs::File;
 use std::path::PathBuf;
 
 mod boundaries;
+mod specs;
 mod vcf_parser;
 mod write_planner;
 
@@ -78,44 +79,13 @@ fn command_dispatcher(args: &StructuredGeneCLI) -> Result<(), ()> {
             info!("Using chromosomes: {:?}.", chromosomes);
             let new_file = File::create(file).unwrap();
             let s = String::from("This is length of the variant");
-            let _new_description = InfoField::parse_description(s);
+            let _new_description = specs::InfoField::parse_description(s);
             write_planner::WritePlanner::new()
                 .add(vcf_parser::VcfParser::get_file_format())
                 .add(b"some path")
                 .write(&new_file);
             Ok(())
         }
-    }
-}
-
-// struct InfoFieldType <'a> {
-// value:  &'a String
-
-// }
-
-// impl InfoFieldType
-
-// enum InfoNumberValue {
-//     PerAllele,    // R
-//     PerAltAllele, // A
-//     PerGenotype,  // G
-//     Known,        //i32
-//     Unknown,       // .
-//     FlagEntry     // 0
-// }
-
-struct InfoField {
-    // number: InfoNumberValue,  // Integer or value that describes the number of values that INFO can hold
-    // r#type: InfoFieldType, //
-    // description: String,
-    // source: String,
-    // version: String
-}
-
-impl InfoField {
-    fn parse_description(description: String) -> String {
-        let quoted_description = format!("\"{}\"", description);
-        quoted_description
     }
 }
 
@@ -132,11 +102,4 @@ fn test_command_extraction() {
         only_header: false,
     };
     assert_eq!(extract_command(&test_args), "generate");
-}
-
-#[test]
-fn string_is_quoted() {
-    let s: String = String::from("Dummy");
-    let result = InfoField::parse_description(s);
-    assert_eq!(String::from("\"Dummy\""), result)
 }
