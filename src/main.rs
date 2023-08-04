@@ -1,10 +1,11 @@
-use clap::{Parser, Subcommand, ValueEnum};
-use log::info;
+use clap::{Parser, Subcommand};
+use log::{error, info};
 use std::env;
-use std::fs::File;
+use std::fs::{create_dir_all, File};
 use std::path::PathBuf;
 
 mod boundaries;
+mod spec_parser;
 mod specs;
 mod vcf_parser;
 mod write_planner;
@@ -21,23 +22,25 @@ enum StructuredGeneCLICommands {
     Watch {},
     /// Generate a single vcf content
     Generate {
+        /// configuration to use
         #[arg()]
-        file: PathBuf,
+        config_file: PathBuf,
+        /// output file
+        #[arg(default_value = "result.vcf")]
+        output_file: PathBuf,
         /// Write n number of variants
         #[arg(short, long, default_value = "1")]
         number_of_variants: Option<i32>,
         /// Write only vcf header
         #[arg(short, long, default_value = "true")]
         only_header: bool,
+        /// Chromosome set to use
         #[arg(long, default_value = "ensembl")]
-        chrom_set: Option<ChromSet>,
+        chrom_set: Option<boundaries::ChromSet>,
+        /// Samples to use
+        #[arg(short = 's', long, default_values_t = vec![String::from("S1")])]
+        samples: Vec<String>,
     },
-}
-
-#[derive(Clone, Debug, ValueEnum)]
-enum ChromSet {
-    Ensembl,
-    Ucsc,
 }
 
 fn main() -> Result<(), ()> {
@@ -46,9 +49,10 @@ fn main() -> Result<(), ()> {
     let cmd: Vec<String> = env::args().collect();
     info!("Running with {:?}.", cmd.join(" "));
     let args: StructuredGeneCLI = StructuredGeneCLI::parse();
+
     let mode: &str = extract_command(&args);
-    let _file_format = vcf_parser::VcfParser::get_file_format();
-    info!("We are running in {} mode.", mode);
+    info!("Running in {} mode.", mode);
+
     let _result = command_dispatcher(&args);
     Ok(())
 }
@@ -67,39 +71,72 @@ fn command_dispatcher(args: &StructuredGeneCLI) -> Result<(), ()> {
             Ok(())
         }
         StructuredGeneCLICommands::Generate {
-            file, chrom_set, ..
+            output_file,
+            chrom_set,
+            number_of_variants,
+            samples,
+            config_file,
+            ..
         } => {
-            // write to a file
-            let chromosomes = match chrom_set {
-                Some(ChromSet::Ensembl) => boundaries::ENSEMBL_CHROMOSOMES,
-                Some(ChromSet::Ucsc) => boundaries::UCSC_CHROMOSOMES,
-                None => boundaries::ENSEMBL_CHROMOSOMES,
-            };
-            info!("Using chrom set from {:?}.", chrom_set.clone().unwrap());
-            info!("Using chromosomes: {:?}.", chromosomes);
-            let new_file = File::create(file).unwrap();
-            let s = String::from("This is length of the variant");
-            let _new_description = specs::InfoField::parse_description(s);
+            let _chromosomes = boundaries::choose_chrom_set(chrom_set);
+            let _number_of_variants = boundaries::get_number_of_variants(number_of_variants);
+            let _samples = get_samples(samples);
+            let _config = get_config_from_file(config_file);
+
+            let output_file = get_output_file(output_file);
             write_planner::WritePlanner::new()
                 .add(vcf_parser::VcfParser::get_file_format())
                 .add(b"some path")
-                .write(&new_file);
+                .write(&output_file);
             Ok(())
         }
     }
 }
 
-#[test]
-fn test_command_extraction() {
-    let mut test_args = StructuredGeneCLI {
-        command: StructuredGeneCLICommands::Watch {},
+fn get_samples(samples: &Vec<String>) -> Vec<&str> {
+    let samples = samples.iter().map(|s| &**s).collect();
+    info!("Using samples {:?}", &samples);
+    samples
+}
+
+fn get_output_file(output_file: &PathBuf) -> File {
+    info!("Writing to output file: {}", output_file.to_str().unwrap());
+    match output_file.parent() {
+        Some(parent_dir) => {
+            if !parent_dir.exists() & !parent_dir.to_str().unwrap().is_empty() {
+                info!(
+                    "Parent dir: {:?} does not exist, generating it.",
+                    parent_dir
+                );
+                match create_dir_all(parent_dir) {
+                    Ok(_) => info!("Created {:?}", parent_dir),
+                    Err(_) => {
+                        error!("Problem creating path to {:?}", output_file);
+                        panic!("Exiting")
+                    }
+                }
+            }
+        }
+        None => {
+            error!("Provided root or non existing path {:?}", output_file);
+            panic!("Exiting")
+        }
     };
-    assert_eq!(extract_command(&test_args), "watch");
-    test_args.command = StructuredGeneCLICommands::Generate {
-        file: PathBuf::from("/tmp/path"),
-        chrom_set: None,
-        number_of_variants: Some(1),
-        only_header: false,
-    };
-    assert_eq!(extract_command(&test_args), "generate");
+
+    // if !parent_dir.exists() {}
+    let new_file = File::create(output_file).unwrap();
+    new_file
+}
+
+#[derive(Debug)]
+struct VCFConfig<'a> {
+    _file: &'a PathBuf,
+}
+
+fn get_config_from_file(config_file: &PathBuf) -> VCFConfig {
+    info!(
+        "Loading row data from config {}",
+        config_file.to_str().unwrap()
+    );
+    VCFConfig { _file: config_file }
 }

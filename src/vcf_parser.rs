@@ -5,7 +5,18 @@ impl<'a> VcfParser {
         b"##fileformat=VCFv4.2"
     }
 }
-
+//     pub fn get_info_field(
+//         id: String,
+//         number: String,
+//         info_type: String,
+//         description: String,
+//         version: String
+//     ) -> Result<(), ()> {
+//
+//
+//     }
+// }
+//
 #[test]
 fn header_is_created() {
     let expected_header = b"##fileformat=VCFv4.2";

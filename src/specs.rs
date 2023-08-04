@@ -1,4 +1,4 @@
-pub struct InfoField {
+pub struct _InfoField {
     // number: InfoNumberValue,  // Integer or value that describes the number of values that INFO can hold
     // r#type: InfoFieldType, //
     // description: String,
@@ -6,8 +6,8 @@ pub struct InfoField {
     // version: String
 }
 
-impl InfoField {
-    pub fn parse_description(description: String) -> String {
+impl _InfoField {
+    pub fn _parse_description(description: String) -> String {
         let quoted_description = format!("\"{}\"", description);
         quoted_description
     }
@@ -32,6 +32,6 @@ impl InfoField {
 #[test]
 fn string_is_quoted() {
     let s: String = String::from("Dummy");
-    let result = InfoField::parse_description(s);
+    let result = _InfoField::_parse_description(s);
     assert_eq!(String::from("\"Dummy\""), result)
 }
