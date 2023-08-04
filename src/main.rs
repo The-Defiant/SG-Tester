@@ -93,7 +93,7 @@ fn command_dispatcher(args: &StructuredGeneCLI) -> Result<(), ()> {
     }
 }
 
-fn get_samples(samples: &Vec<String>) -> Vec<&str> {
+fn get_samples(samples: &[String]) -> Vec<&str> {
     let samples = samples.iter().map(|s| &**s).collect();
     info!("Using samples {:?}", &samples);
     samples
@@ -123,9 +123,7 @@ fn get_output_file(output_file: &PathBuf) -> File {
         }
     };
 
-    // if !parent_dir.exists() {}
-    let new_file = File::create(output_file).unwrap();
-    new_file
+    File::create(output_file).unwrap()
 }
 
 #[derive(Debug)]
