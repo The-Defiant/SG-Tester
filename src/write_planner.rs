@@ -22,7 +22,6 @@ impl<'a> WritePlanner<'a> {
             can_pop = match self.queue.pop_front() {
                 Some(arr) => {
                     let _ = output.write_all(arr);
-                    let _ = output.write_all(b"\n");
                     true
                 }
                 None => false,

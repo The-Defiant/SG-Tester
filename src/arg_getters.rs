@@ -4,14 +4,14 @@ use std::fs::{create_dir_all, File};
 use std::path::PathBuf;
 
 use crate::boundaries::{ChromSet, ENSEMBL_CHROMOSOMES, UCSC_CHROMOSOMES};
-use crate::vcf_config::VCFConfig;
+use crate::vcf_config::VcfConfig;
 
-pub fn get_config_from_file(config_file: &PathBuf) -> VCFConfig {
+pub fn get_config_from_file(config_file: &PathBuf) -> VcfConfig {
     info!(
         "Loading row data from config {}",
         config_file.to_str().unwrap()
     );
-    VCFConfig { _file: config_file }
+    VcfConfig::from(config_file)
 }
 
 pub fn choose_chrom_set(chrom_set: &Option<ChromSet>) -> [&str; 24] {
