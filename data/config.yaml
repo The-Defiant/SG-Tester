@@ -1,0 +1,41 @@
+INFO :
+  - ID: number
+    Description: "a"
+    Source: "a"
+    Version: "a"
+    Values: ["a", "b", "c"]
+  - ID: number
+    Description: "a"
+    Source: "a"
+    Version: "a"
+    Values: [[1,2], [1,2]]
+FILTER:
+  - ID: number
+    Description: "b"
+    Values: ["PASS", ".", "SomeOtherFlag"]
+FORMAT:
+  - ID: number
+    Description: "aaa"
+    Values: [1,2,3,4,5]
+ALT:
+  - ID: DEL
+    Description: "This is Deletion"
+  - ID: INS
+    Description: "This is Insertion"
+  - ID: INV
+    Description: "This is Iversion"
+  - ID: DUP
+    Description: "This is Duplication"
+  - ID: CNV
+    Description: "This can be deletion or insertion"
+  - ID: DUP:TANDEM
+    Description: "Tandem duplication"
+  - ID: DEL:ME
+    Description: "Deletion of mobile element"
+  - ID: INS:ME
+    Description: "Insertion of mobile element"
+
+
+
+
+
