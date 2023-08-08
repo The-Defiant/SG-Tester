@@ -34,6 +34,8 @@ pub fn command_dispatcher(args: &cli::StructuredGeneCLI) -> Result<(), ()> {
             write_planner::WritePlanner::new()
                 .add(VcfParser::get_file_format())
                 .add(&parser.get_info_fields()[..])
+                .add(&parser.get_format_field()[..])
+                .add(&parser.get_filter_field()[..])
                 .add(b"some path\n")
                 .write(&output_file);
             Ok(())

@@ -1,48 +1,22 @@
 use log::{error, info};
 use serde::Deserialize;
-use std::collections::HashMap;
 use std::convert::From;
 use std::fs::File;
 use std::io::{BufReader, Read};
 use std::path::PathBuf;
 
+pub mod vcf_filter;
+pub mod vcf_format;
+pub mod vcf_info;
+
 #[derive(Debug, Deserialize)]
 pub struct VcfConfig {
     #[serde(rename(deserialize = "INFO"))]
-    pub info: Vec<VcfInfoConfig>,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct VcfInfoConfig {
-    #[serde(rename(deserialize = "ID"))]
-    pub id: String,
-    #[serde(rename(deserialize = "Number"))]
-    pub number: i32,
-    #[serde(rename(deserialize = "Description"))]
-    pub description: String,
-    #[serde(rename(deserialize = "Values"))]
-    pub values: VcfConfigInfoType,
-    #[serde(flatten)]
-    pub other: HashMap<String, String>,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-pub enum VcfConfigInfoType {
-    Integer(Vec<i32>),
-    Float(Vec<f32>),
-    Character(Vec<char>),
-    String(Vec<String>),
-    IntegerVec(Vec<Vec<i32>>),
-    FloatVec(Vec<Vec<f32>>),
-    CharacterVec(Vec<Vec<char>>),
-    StringVec(Vec<Vec<String>>),
-    Flag(),
-}
-
-pub trait Validate {
-    fn is_valid<T>(&self, field: T) -> bool;
-    fn validate<T>(&self, field: T) -> T;
+    pub info: Vec<vcf_info::VcfInfoConfig>,
+    #[serde(rename(deserialize = "FORMAT"))]
+    pub format: Vec<vcf_format::VcfFormatConfig>,
+    #[serde(rename(deserialize = "FILTER"))]
+    pub filter: Vec<vcf_filter::VcfFilterConfig>,
 }
 
 impl VcfConfig {
