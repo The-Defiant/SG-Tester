@@ -1,5 +1,6 @@
 use log::{error, info};
 use serde::Deserialize;
+use std::collections::HashMap;
 use std::convert::From;
 use std::fs::File;
 use std::io::{BufReader, Read};
@@ -17,16 +18,31 @@ pub struct VcfInfoConfig {
     pub id: String,
     #[serde(rename(deserialize = "Number"))]
     pub number: i32,
-    #[serde(rename(deserialize = "Type"))]
-    pub t: String,
     #[serde(rename(deserialize = "Description"))]
     pub description: String,
-    #[serde(rename(deserialize = "Source"))]
-    pub source: String,
-    #[serde(rename(deserialize = "Version"))]
-    pub version: String,
     #[serde(rename(deserialize = "Values"))]
-    pub values: Vec<String>,
+    pub values: VcfConfigInfoType,
+    #[serde(flatten)]
+    pub other: HashMap<String, String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+pub enum VcfConfigInfoType {
+    Integer(Vec<i32>),
+    Float(Vec<f32>),
+    Character(Vec<char>),
+    String(Vec<String>),
+    IntegerVec(Vec<Vec<i32>>),
+    FloatVec(Vec<Vec<f32>>),
+    CharacterVec(Vec<Vec<char>>),
+    StringVec(Vec<Vec<String>>),
+    Flag(),
+}
+
+pub trait Validate {
+    fn is_valid<T>(&self, field: T) -> bool;
+    fn validate<T>(&self, field: T) -> T;
 }
 
 impl VcfConfig {
@@ -38,6 +54,7 @@ impl VcfConfig {
         content
     }
 }
+
 impl From<&PathBuf> for VcfConfig {
     fn from(path: &PathBuf) -> Self {
         let content = VcfConfig::from_path_buf(path);

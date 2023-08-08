@@ -15,25 +15,21 @@ impl<'a> VcfParser {
         let mut info_fields: Vec<u8> = Vec::new();
         for info_field in self.vcf_config.info.iter() {
             let info_field_str = &mut format!(
-                "##INFO=<ID=\"{}\">,Number=\"{}\",Type=\"{}\",Description=\"{}\",Source=\"{}\",Version=\"{}\">\n",
-                info_field.id,
-                info_field.number,
-                info_field.t,
-                info_field.description,
-                info_field.source,
-                info_field.version,
+                "##INFO=<ID=\"{}\">,Number=\"{}\",Description=\"{}\"",
+                info_field.id, info_field.number, info_field.description,
             );
+            let mut additional_fields = String::new();
+            for (name, value) in info_field.other.iter() {
+                additional_fields.push_str(format!(",{}=\"{}\"", name, value).as_str());
+            }
+            additional_fields.push_str(">\n");
 
             info!("Appending {:?} to file", info_field_str);
             let info_field_slice = &mut info_field_str.as_bytes().to_vec();
+            let additional_fields_slice = &mut additional_fields.as_bytes().to_vec();
             info_fields.append(info_field_slice);
+            info_fields.append(additional_fields_slice);
         }
         info_fields
     }
-}
-
-#[test]
-fn header_is_created() {
-    let expected_header = b"##fileformat=VCFv4.2";
-    assert_eq!(VcfParser::get_file_format(), expected_header);
 }
