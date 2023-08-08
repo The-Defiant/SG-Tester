@@ -1,12 +1,10 @@
 INFO :
   - ID: number
-    Number: 1
     Description: "a"
     Source: "a"
     Version: "a"
     Values: ["a", "b", "c"]
   - ID: number
-    Number: 2
     Description: "a"
     Source: "a"
     Version: "a"
@@ -14,11 +12,11 @@ INFO :
 FILTER:
   - ID: number
     Description: "b"
+    Values: ["PASS", ".", "SomeOtherFlag"]
 FORMAT:
   - ID: number
-    Number: 1
-    Type: "type"
     Description: "aaa"
+    Values: [1,2,3,4,5]
 ALT:
   - ID: DEL
     Description: "This is Deletion"
