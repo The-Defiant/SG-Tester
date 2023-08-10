@@ -16,7 +16,7 @@ FILTER:
 FORMAT:
   - ID: number
     Description: "aaa"
-    Values: [1,2,3,4,5]
+    Values: [[1,2,3,4,5, 5.1], [12.2,12]]
 ALT:
   - ID: DEL
     Description: "This is Deletion"

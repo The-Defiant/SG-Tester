@@ -6,6 +6,7 @@ mod arg_getters;
 mod boundaries;
 mod cli;
 mod command_dispatcher;
+mod helpers;
 mod spec_parser;
 mod specs;
 mod vcf_config;
