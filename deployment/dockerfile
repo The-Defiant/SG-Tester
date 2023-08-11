@@ -1,0 +1,4 @@
+FROM rust
+RUN cargo install --git https://github.com/The-Defiant/SG-Tester.git
+ENV RUST_LOG=info
+ENTRYPOINT ["structured_gene_tester"]
